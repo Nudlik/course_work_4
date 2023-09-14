@@ -11,6 +11,9 @@ class AbstractClassAPI(ABC):
     def save_data(self):
         pass
 
+    def clear_data(self):
+        open(self.path_to_json, 'w').close()
+
 
 class AbstractClassJsonSaver(ABC):
 
