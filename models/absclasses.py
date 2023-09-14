@@ -22,3 +22,10 @@ class AbstractClassJsonSaver(ABC):
 
     def clear_data(self, path):
         open(path, 'w').close()
+
+
+class AbstractClassMenu(ABC):
+
+    @abstractmethod
+    def show_menu(self):
+        pass
