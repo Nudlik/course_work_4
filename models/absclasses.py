@@ -4,22 +4,21 @@ from abc import ABC, abstractmethod
 class AbstractClassAPI(ABC):
 
     url: str
-    path_to_json: str
 
     @abstractmethod
-    def get_vacancies(self):
+    def get_vacancies(self, find_text, pages=1):
         pass
-
-    @abstractmethod
-    def save_data(self):
-        pass
-
-    def clear_data(self):
-        open(self.path_to_json, 'w').close()
 
 
 class AbstractClassJsonSaver(ABC):
 
     @abstractmethod
-    def save_json(self):
+    def save_data_hh(self, data):
         pass
+
+    @abstractmethod
+    def save_data_sj(self, data):
+        pass
+
+    def clear_data(self, path):
+        open(path, 'w').close()
