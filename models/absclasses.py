@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 
 class AbstractClassAPI(ABC):
 
+    url: str
+    path_to_json: str
+
     @abstractmethod
     def get_vacancies(self):
         pass
