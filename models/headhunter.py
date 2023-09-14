@@ -1,16 +1,15 @@
 import json
-import os
-from pprint import pprint
 
 import requests
 
 from models.absclasses import AbstractClassAPI
+from settings import path_to_hh_vacancy
 
 
 class HeadHunterAPI(AbstractClassAPI):
 
     url = r'https://api.hh.ru/vacancies/'
-    path_to_json = os.path.join(os.path.dirname(__file__), '..', 'data', 'hh_vacancy.json')
+    path_to_json = path_to_hh_vacancy
 
     def __init__(self, find_text):
         self.find_text = find_text
@@ -58,9 +57,3 @@ class HeadHunterAPI(AbstractClassAPI):
 
             self.clear_data()
             json.dump(lst, file, indent=4, ensure_ascii=False)
-
-
-if __name__ == '__main__':
-    hh = HeadHunterAPI('python')
-    pprint(hh.get_vacancies())
-    hh.save_data()

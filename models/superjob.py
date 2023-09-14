@@ -1,17 +1,16 @@
 import json
-import os
-from pprint import pprint
 
 import requests
 
 from models.absclasses import AbstractClassAPI
+from settings import path_to_sj_vacancy, API_KEY_SUPERJOB
 
 
 class SuperJobAPI(AbstractClassAPI):
 
     url = 'https://api.superjob.ru/2.0/vacancies/'
-    API_KEY = os.getenv('SUPERJOB_API_KEY')
-    path_to_json = os.path.join(os.path.dirname(__file__), '..', 'data', 'sj_vacancy.json')
+    API_KEY = API_KEY_SUPERJOB
+    path_to_json = path_to_sj_vacancy
 
     def __init__(self, keyword):
         self.keyword = keyword
@@ -51,9 +50,3 @@ class SuperJobAPI(AbstractClassAPI):
 
             self.clear_data()
             json.dump(lst, file, indent=4, ensure_ascii=False)
-
-
-if __name__ == '__main__':
-    sj = SuperJobAPI('python')
-    pprint(sj.get_vacancies())
-    sj.save_data()
