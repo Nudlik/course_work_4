@@ -1,5 +1,6 @@
 import json
 import re
+from functools import wraps
 
 from models.absclasses import AbstractClassJsonSaver
 from models.headhunter import HeadHunterAPI
@@ -11,8 +12,8 @@ from settings import path_to_hh_vacancy, path_to_sj_vacancy, path_to_all_vacancy
 class JsonSaver(AbstractClassJsonSaver):
     """ Класс для работы с json """
 
-    path_to_main_json: str = path_to_all_vacancy
-    list_paths: list = LIST_WITH_JSON_PATH
+    __path_to_main_json: str = path_to_all_vacancy
+    __list_paths: list = LIST_WITH_JSON_PATH
 
     def rotate(self, platform: HeadHunterAPI | SuperJobAPI, data: list) -> None:
         """ Метод для выборки и сохранения json """
@@ -85,6 +86,13 @@ class JsonSaver(AbstractClassJsonSaver):
 
     @staticmethod
     def decorate_json_except(func):
+        """
+        Декоратор для обработки исключений, возникающих при работе с JSON-файлами.
+        :param func: Функция, которую нужно обернуть декоратором.
+        :return: Результат выполнения функции `func`
+        """
+
+        @wraps(func)
         def inner(*args, **kwargs):
             try:
                 res = func(*args, **kwargs)
@@ -107,7 +115,7 @@ class JsonSaver(AbstractClassJsonSaver):
         """ Метод для получения данных из кэш файлов json """
 
         res = []
-        for path in self.list_paths:
+        for path in self.__list_paths:
             with open(path, 'r', encoding='utf-8') as file:
                 res.extend(json.load(file))
 
@@ -118,11 +126,11 @@ class JsonSaver(AbstractClassJsonSaver):
         """ Метод для сохранения данных в основной json из кэшей если юзеру они понадобились """
 
         res = []
-        for path in self.list_paths:
+        for path in self.__list_paths:
             with open(path, 'r', encoding='utf-8') as file:
                 res.extend(json.load(file))
 
-        json.dump(res, open(self.path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
+        json.dump(res, open(self.__path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
 
     def get_data_to_vacancy(self, data: list) -> list:
         """
