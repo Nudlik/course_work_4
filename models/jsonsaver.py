@@ -1,4 +1,5 @@
 import json
+import re
 
 from models.absclasses import AbstractClassJsonSaver
 from models.headhunter import HeadHunterAPI
@@ -48,7 +49,7 @@ class JsonSaver(AbstractClassJsonSaver):
                     salary = 0
 
                 requirements = vacancy['snippet']['responsibility']
-                requirements = requirements if requirements else 'Не указано'
+                requirements = re.sub(r'<.*?>', '', requirements) if requirements else 'Не указано'
 
                 lst.append({
                     'name': vacancy['name'],
@@ -69,7 +70,7 @@ class JsonSaver(AbstractClassJsonSaver):
             for page in range(len(data)):
                 vacancy = data[page]
 
-                requirements = vacancy['candidat'][:100] + '...'
+                requirements = re.sub(r'[\n\t•]', '', vacancy['candidat'])[:100] + '...'
 
                 lst.append({
                     'name': vacancy['profession'],
