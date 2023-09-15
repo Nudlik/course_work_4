@@ -27,7 +27,7 @@ class Menu(AbstractClassMenu):
               '6) Инфо\n'
               '7) Выход')
 
-        user_input = int(input())
+        user_input = self.validate_input_int(input())
 
         match user_input:
             case 1:
@@ -43,7 +43,7 @@ class Menu(AbstractClassMenu):
                 self.save_result()
                 self.show_menu()
             case 6:
-                print('\nИнфо - пока пусто\n')
+                print('\nИнфо - пока пусто')
                 self.show_menu()
             case 7:
                 self.exit()
@@ -53,7 +53,8 @@ class Menu(AbstractClassMenu):
 
     def set_parse_params(self):
         user_find_text = input('Введите слово для поиска по которому будем искать вакансии: ').lower().strip()
-        count_page = int(input('Введите количество страниц для парсинга(на 1ой странице будет 10 вакансий): ').strip())
+        count_page = self.validate_input_int(input('Введите количество страниц для парсинга'
+                                               '(на 1ой странице будет 10 вакансий): ').strip())
         self.user_find_text = user_find_text
         self.count_pages = count_page
 
@@ -64,7 +65,7 @@ class Menu(AbstractClassMenu):
         [print(f'{num}) {self.list_platforms[num - 1].__name__}') for num in range(1, len(self.list_platforms) + 1)]
         print('7) Выход в главное меню')
 
-        user_input = int(input('Введите цифру платформы которая будет использоваться для парсинга: '))
+        user_input = self.validate_input_int(input('Введите цифру платформы которая будет использоваться для парсинга: '))
 
         match user_input:
             case 1:
@@ -85,7 +86,7 @@ class Menu(AbstractClassMenu):
               f'2) Задать параметры для парсинга\n'
               f'7) Выход в главное меню')
 
-        user_input = int(input())
+        user_input = self.validate_input_int(input())
 
         match user_input:
             case 1:
@@ -111,7 +112,7 @@ class Menu(AbstractClassMenu):
               '2) Показать сортировку по ЗП\n'
               '7) Выход в главное меню')
 
-        user_input = int(input())
+        user_input = self.validate_input_int(input())
 
         match user_input:
             case 1:
@@ -136,6 +137,15 @@ class Menu(AbstractClassMenu):
     @staticmethod
     def menu_item_missing():
         print('\nПункт меню отсутствует\n')
+
+    @classmethod
+    def validate_input_int(cls, user_input):
+        try:
+            user_input = int(user_input)
+            return user_input
+        except Exception:
+            user_input = input('Неверный ввод, попробуйте еще раз ввести цифру: ')
+            return cls.validate_input_int(user_input)
 
 
 if __name__ == '__main__':
