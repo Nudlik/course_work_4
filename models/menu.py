@@ -2,6 +2,7 @@ from models.absclasses import AbstractClassMenu
 from models.headhunter import HeadHunterAPI
 from models.jsonsaver import JsonSaver
 from models.superjob import SuperJobAPI
+from models.vacancy import Vacancy
 
 
 class Menu(AbstractClassMenu):
@@ -27,14 +28,17 @@ class Menu(AbstractClassMenu):
         match user_input:
             case 1:
                 self.set_parse_params()
+                self.show_menu()
             case 2:
                 self.change_platform()
             case 3:
                 self.start_parse()
             case 4:
-                pass
+                self.show_result()
+                self.show_menu()
             case 5:
-                pass
+                self.save_result()
+                self.show_menu()
             case 6:
                 pass
             case 7:
@@ -49,7 +53,6 @@ class Menu(AbstractClassMenu):
         self.user_find_text = user_find_text
         self.count_pages = count_page
 
-        self.show_menu()
 
     def change_platform(self):
         print(f'Сейчас выбранаы платформы все платформы')
@@ -95,10 +98,18 @@ class Menu(AbstractClassMenu):
                 self.start_parse()
 
     def show_result(self):
-        pass
+        data_vacancy = self.json_saver.get_data_vacancy()
+        for vacancy in data_vacancy:
+            vacancy = Vacancy(name=vacancy['name'],
+                              url=vacancy['url'],
+                              salary=vacancy['salary'],
+                              experience=vacancy['experience'],
+                              requirements=vacancy['requirements'],
+                              city=vacancy['city'])
+            print(vacancy, end='\n\n')
 
     def save_result(self):
-        pass
+        self.json_saver.save_data_to_json()
 
     def sort_result_by_salary(self):
         pass
@@ -106,7 +117,8 @@ class Menu(AbstractClassMenu):
     def exit(self):
         pass
 
-    def menu_item_missing(self):
+    @staticmethod
+    def menu_item_missing():
         print('Пункт меню отсутствует')
 
 
