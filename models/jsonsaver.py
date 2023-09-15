@@ -4,15 +4,18 @@ from models.absclasses import AbstractClassJsonSaver
 from models.headhunter import HeadHunterAPI
 from models.superjob import SuperJobAPI
 from models.vacancy import Vacancy
-from settings import path_to_hh_vacancy, path_to_sj_vacancy, path_to_all_vacancy, LIST_TO_JSON
+from settings import path_to_hh_vacancy, path_to_sj_vacancy, path_to_all_vacancy, LIST_WITH_JSON_PATH
 
 
 class JsonSaver(AbstractClassJsonSaver):
+    """ Класс для работы с json """
 
-    path_to_main_json = path_to_all_vacancy
-    list_paths = LIST_TO_JSON
+    path_to_main_json: str = path_to_all_vacancy
+    list_paths: list = LIST_WITH_JSON_PATH
 
-    def rotate(self, platform, data):
+    def rotate(self, platform: HeadHunterAPI | SuperJobAPI, data: list) -> None:
+        """ Метод для выборки и сохранения json """
+
         if isinstance(platform, HeadHunterAPI):
             self.path_to_json = path_to_hh_vacancy
             self.clear_data(self.path_to_json)
@@ -22,7 +25,9 @@ class JsonSaver(AbstractClassJsonSaver):
             self.clear_data(self.path_to_json)
             self.save_data_sj(data)
 
-    def save_data_hh(self, data):
+    def save_data_hh(self, data: list) -> None:
+        """ Метод для сохранения в json данных с HeadHunter """
+
         with open(self.path_to_json, 'a', encoding='utf-8') as file:
             lst = []
 
@@ -56,7 +61,9 @@ class JsonSaver(AbstractClassJsonSaver):
 
             json.dump(lst, file, indent=4, ensure_ascii=False)
 
-    def save_data_sj(self, data):
+    def save_data_sj(self, data: list) -> None:
+        """ Метод для сохранения в json данных с SuperJob """
+
         with open(self.path_to_json, 'a', encoding='utf-8') as file:
             lst = []
             for page in range(len(data)):
@@ -75,14 +82,19 @@ class JsonSaver(AbstractClassJsonSaver):
 
             json.dump(lst, file, indent=4, ensure_ascii=False)
 
-    def get_data_vacancy(self):
+    def get_data_vacancy(self) -> list:
+        """ Метод для получения данных из кэш файлов json """
+
         res = []
         for path in self.list_paths:
             with open(path, 'r', encoding='utf-8') as file:
                 res.extend(json.load(file))
+
         return res
 
-    def save_data_to_json(self):
+    def save_data_to_json(self) -> None:
+        """ Метод для сохранения данных в основной json из кэшей если юзеру они понадобились """
+
         res = []
         for path in self.list_paths:
             with open(path, 'r', encoding='utf-8') as file:
@@ -90,7 +102,13 @@ class JsonSaver(AbstractClassJsonSaver):
 
         json.dump(res, open(self.path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
 
-    def get_data_to_vacancy(self, data):
+    def get_data_to_vacancy(self, data: list) -> list:
+        """
+        Метод для преобразования данных из json в объекты Vacancy
+        :param data: список с вакансиями
+        :return: список объектов list[Vacancy]
+        """
+
         res = []
         data_vacancy = data
         for vacancy in data_vacancy:
@@ -101,7 +119,10 @@ class JsonSaver(AbstractClassJsonSaver):
                               requirements=vacancy['requirements'],
                               city=vacancy['city'])
             res.append(vacancy)
+
         return res
 
-    def sorted_by_salary(self):
+    def sorted_by_salary(self) -> list:
+        """ Метод для сортировки вакансий по зарплате """
+
         return sorted(self.get_data_vacancy(), key=lambda x: x['salary'])

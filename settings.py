@@ -8,7 +8,7 @@ path_to_hh_vacancy = os.path.join(path_to_root, 'data', 'hh_vacancy.json')
 path_to_sj_vacancy = os.path.join(path_to_root, 'data', 'sj_vacancy.json')
 
 # список путей к вайлам
-LIST_TO_JSON = [
+LIST_WITH_JSON_PATH = [
     path_to_hh_vacancy,
     path_to_sj_vacancy
 ]

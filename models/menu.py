@@ -5,6 +5,7 @@ from models.superjob import SuperJobAPI
 
 
 class Menu(AbstractClassMenu):
+    """ Меню программы """
 
     list_platforms: list = [
         HeadHunterAPI,
@@ -139,7 +140,9 @@ class Menu(AbstractClassMenu):
         print('\nПункт меню отсутствует\n')
 
     @classmethod
-    def validate_input_int(cls, user_input):
+    def validate_input_int(cls, user_input: str) -> int:
+        """ Валидация введенного пользователем числа """
+
         try:
             user_input = int(user_input)
             return user_input

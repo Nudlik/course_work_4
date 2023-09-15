@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class Vacancy:
+    """ Класс для представления вакансии """
+
     name: str = field(compare=False)
     url: str = field(compare=False)
     salary: int
