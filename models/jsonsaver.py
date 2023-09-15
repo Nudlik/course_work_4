@@ -82,6 +82,26 @@ class JsonSaver(AbstractClassJsonSaver):
 
             json.dump(lst, file, indent=4, ensure_ascii=False)
 
+    @staticmethod
+    def decorate_json_except(func):
+        def inner(*args, **kwargs):
+            try:
+                res = func(*args, **kwargs)
+            except json.decoder.JSONDecodeError:
+                print('Json файл пуст, выберите параметры для поиска и начните парсинг')
+                return []
+            except TypeError:
+                print('Сначала спарсите а потом работайте с данными')
+            except FileNotFoundError:
+                print('Json файл не найден')
+            except Exception as e:
+                print(e)
+            else:
+                return res
+
+        return inner
+
+    @decorate_json_except
     def get_data_vacancy(self) -> list:
         """ Метод для получения данных из кэш файлов json """
 
@@ -92,6 +112,7 @@ class JsonSaver(AbstractClassJsonSaver):
 
         return res
 
+    @decorate_json_except
     def save_data_to_json(self) -> None:
         """ Метод для сохранения данных в основной json из кэшей если юзеру они понадобились """
 

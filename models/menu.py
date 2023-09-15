@@ -35,6 +35,7 @@ class Menu(AbstractClassMenu):
                 self.set_parse_params()
             case 2:
                 self.change_platform()
+                self.start_parse()
             case 3:
                 self.start_parse()
             case 4:
@@ -55,7 +56,7 @@ class Menu(AbstractClassMenu):
     def set_parse_params(self):
         user_find_text = input('Введите слово для поиска по которому будем искать вакансии: ').lower().strip()
         count_page = self.validate_input_int(input('Введите количество страниц для парсинга'
-                                               '(на 1ой странице будет 10 вакансий): ').strip())
+                                                   '(на 1ой странице будет 10 вакансий): ').strip())
         self.user_find_text = user_find_text
         self.count_pages = count_page
 
@@ -66,7 +67,8 @@ class Menu(AbstractClassMenu):
         [print(f'{num}) {self.list_platforms[num - 1].__name__}') for num in range(1, len(self.list_platforms) + 1)]
         print('7) Выход в главное меню')
 
-        user_input = self.validate_input_int(input('Введите цифру платформы которая будет использоваться для парсинга: '))
+        user_input = self.validate_input_int(
+            input('Введите цифру платформы которая будет использоваться для парсинга: '))
 
         match user_input:
             case 1:
@@ -80,7 +82,10 @@ class Menu(AbstractClassMenu):
                 self.change_platform()
 
     def start_parse(self):
-        print(f'\nПарсинг вакансий по слову: {self.user_find_text}\n'
+        str_list_platforms = ', '.join(str(i).split('.')[-1][:-2] for i in self.list_platforms)
+
+        print(f'\nПарсинг будет выполняться через: {str_list_platforms}\n'
+              f'Парсинг вакансий по слову: {self.user_find_text}\n'
               f'Страниц будет загружено {self.count_pages}\n'
               f'Вакансий будет найдено {self.count_pages * 10 * len(self.list_platforms)}\n'
               f'1) Начать парсинг\n'
@@ -91,7 +96,7 @@ class Menu(AbstractClassMenu):
 
         match user_input:
             case 1:
-                print('\nПарсинг начался, пожалуйста подождите')
+                print('\nПарсинг начался, пожалуйста подождите (っ◕‿◕)っ')
 
                 for platform in self.list_platforms:
                     platform = platform()
@@ -117,10 +122,12 @@ class Menu(AbstractClassMenu):
 
         match user_input:
             case 1:
-                data = self.json_saver.get_data_to_vacancy(self.json_saver.get_data_vacancy())
+                vacancy = self.json_saver.get_data_vacancy()
+                data = self.json_saver.get_data_to_vacancy(vacancy)
                 print(*data, sep='\n\n', end='\n\n')
             case 2:
-                data = self.json_saver.get_data_to_vacancy(self.json_saver.sorted_by_salary())
+                vacancy = self.json_saver.sorted_by_salary()
+                data = self.json_saver.get_data_to_vacancy(vacancy)
                 print(*data, sep='\n\n', end='\n\n')
             case 7:
                 self.show_menu()
