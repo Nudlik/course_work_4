@@ -30,5 +30,17 @@ class SuperJobAPI(AbstractClassAPI):
 
         return res
 
-    def __str__(self):
-        return 'https://www.superjob.ru/'
+    def get_vacancies_by_salary(self, find_text: str, pages: int = 1, salary: int = 0) -> list:
+        res = []
+        for page in range(pages):
+            query_parameters = {
+                'keyword': find_text,
+                'count': 10,
+                'page': page,
+                'no_agreement': 1,
+                'payment_from': salary
+            }
+            response = requests.get(self.url, params=query_parameters, headers=self.headers)
+            res.extend(response.json()['objects'])
+
+        return res

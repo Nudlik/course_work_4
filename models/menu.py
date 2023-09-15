@@ -17,6 +17,7 @@ class Menu(AbstractClassMenu):
     def __init__(self):
         self.user_find_text: str = 'python'
         self.count_pages: int = 1
+        self.salary: int = 0
 
     def show_menu(self):
         print('\nВыберите пункт меню:\n'
@@ -57,6 +58,7 @@ class Menu(AbstractClassMenu):
         user_find_text = input('Введите слово для поиска по которому будем искать вакансии: ').lower().strip()
         count_page = self.validate_input_int(input('Введите количество страниц для парсинга'
                                                    '(на 1ой странице будет 10 вакансий): ').strip())
+        self.salary = self.validate_input_int(input('Искать ЗП от: '))
         self.user_find_text = user_find_text
         self.count_pages = count_page
 
@@ -86,32 +88,32 @@ class Menu(AbstractClassMenu):
 
         print(f'\nПарсинг будет выполняться через: {str_list_platforms}\n'
               f'Парсинг вакансий по слову: {self.user_find_text}\n'
+              f'ЗП ищется от {self.salary}\n'
               f'Страниц будет загружено {self.count_pages}\n'
               f'Вакансий будет найдено {self.count_pages * 10 * len(self.list_platforms)}\n'
-              f'1) Начать парсинг\n'
-              f'2) Задать параметры для парсинга\n'
+              f'1) Начать парсинг по искомому слову в вакансии\n'
+              f'2) Начать парсинг по искомому слову в вакансии и ЗП\n'
+              f'6) Задать параметры для парсинга\n'
               f'7) Выход в главное меню')
 
         user_input = self.validate_input_int(input())
 
         match user_input:
             case 1:
-                print('\nПарсинг начался, пожалуйста подождите (っ◕‿◕)っ')
-
-                for platform in self.list_platforms:
-                    platform = platform()
-                    data = platform.get_vacancies(self.user_find_text, self.count_pages)
-                    self.json_saver.rotate(platform, data)
-
-                    print('Все прошло успешно, взаимодействуйте дальше с меню\n')
-                    self.show_menu()
+                self.parse_rotate(user_input)
             case 2:
+                self.salary = self.validate_input_int(input('Введите минимальную ЗП: ')) \
+                    if self.salary == 0 else self.salary
+                self.parse_rotate(user_input)
+            case 6:
                 self.set_parse_params()
             case 7:
                 self.show_menu()
             case _:
                 self.menu_item_missing()
                 self.start_parse()
+
+        self.show_menu()
 
     def show_result(self):
         print('\n1) Показать все результаты\n'
@@ -156,6 +158,27 @@ class Menu(AbstractClassMenu):
         except Exception:
             user_input = input('Неверный ввод, попробуйте еще раз ввести цифру: ')
             return cls.validate_input_int(user_input)
+
+    def parse_rotate(self, num):
+        print('\nПарсинг начался, пожалуйста подождите (っ◕‿◕)っ')
+        match num:
+            case 1:
+                self.start_parse_by_finder_word()
+            case 2:
+                self.start_parse_by_salary()
+        print('Все прошло успешно, взаимодействуйте дальше с меню\n')
+
+    def start_parse_by_finder_word(self):
+        for platform in self.list_platforms:
+            platform = platform()
+            data = platform.get_vacancies(self.user_find_text, self.count_pages)
+            self.json_saver.rotate(platform, data)
+
+    def start_parse_by_salary(self):
+        for platform in self.list_platforms:
+            platform = platform()
+            data = platform.get_vacancies_by_salary(self.user_find_text, self.count_pages, self.salary)
+            self.json_saver.rotate(platform, data)
 
 
 if __name__ == '__main__':

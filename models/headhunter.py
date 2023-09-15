@@ -29,5 +29,17 @@ class HeadHunterAPI(AbstractClassAPI):
 
         return res
 
-    def __str__(self):
-        return 'https://hh.ru/'
+    def get_vacancies_by_salary(self, find_text: str, pages: int = 1, salary: int = 0) -> list:
+        res = []
+        for page in range(pages):
+            query_parameters = {
+                'text': find_text,
+                'per_page': 10,
+                'page': page,
+                'only_with_salary': True,
+                'salary': salary
+            }
+            response = requests.get(self.url, params=query_parameters)
+            res.extend(response.json()['items'])
+
+        return res
