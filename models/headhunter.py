@@ -22,3 +22,6 @@ class HeadHunterAPI(AbstractClassAPI):
             res.extend(response.json()['items'])
 
         return res
+
+    def __str__(self):
+        return 'https://hh.ru/'

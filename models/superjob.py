@@ -23,3 +23,6 @@ class SuperJobAPI(AbstractClassAPI):
             res.extend(response.json()['objects'])
 
         return res
+
+    def __str__(self):
+        return 'https://www.superjob.ru/'
