@@ -38,9 +38,10 @@ class Menu(AbstractClassMenu):
             case 6:
                 pass
             case 7:
-                pass
+                quit()
             case _:
-                pass
+                self.menu_item_missing()
+                self.show_menu()
 
     def set_parse_params(self):
         user_find_text = input('Введите слово для поиска по которому будем искать вакансии: ').lower().strip()
@@ -51,26 +52,47 @@ class Menu(AbstractClassMenu):
         self.show_menu()
 
     def change_platform(self):
-        platforms = ', '.join(str(i.__name__) for i in self.list_platforms)
-        print(f'Сейчас выбрана(ы) платформа(ы): {platforms}')
-        user_input = int(input('Введите цифру платформы для парсинга: '))
+        print(f'Сейчас выбранаы платформы все платформы')
+        [print(f'{num}) {self.list_platforms[num - 1].__name__}') for num in range(1, len(self.list_platforms) + 1)]
+        print('7) Выход в главное меню')
+
+        user_input = int(input('Введите цифру платформы которая будет использоваться для парсинга: '))
+
         match user_input:
             case 1:
                 self.list_platforms = [HeadHunterAPI]
             case 2:
                 self.list_platforms = [SuperJobAPI]
+            case 7:
+                self.show_menu()
             case _:
-                pass
-
-        self.show_menu()
+                self.menu_item_missing()
+                self.change_platform()
 
     def start_parse(self):
-        for platform in self.list_platforms:
-            platform = platform()
-            data = platform.get_vacancies(self.user_find_text, self.count_pages)
-            self.json_saver.rotate(platform, data)
+        print(f'Парсинг вакансий по слову: {self.user_find_text}\n'
+              f'Страниц будет загружено {self.count_pages}\n'
+              f'Вакансий будет найдено {self.count_pages * 10 * len(self.list_platforms)}\n'
+              f'1) Начать парсинг\n'
+              f'7) Выход в главное меню')
 
-        self.show_menu()
+        user_input = int(input())
+
+        match user_input:
+            case 1:
+                print('Парсинг начался, пожалуйста подождите')
+
+                for platform in self.list_platforms:
+                    platform = platform()
+                    data = platform.get_vacancies(self.user_find_text, self.count_pages)
+                    self.json_saver.rotate(platform, data)
+
+                    self.show_menu()
+            case 7:
+                self.show_menu()
+            case _:
+                self.menu_item_missing()
+                self.start_parse()
 
     def show_result(self):
         pass
@@ -83,6 +105,9 @@ class Menu(AbstractClassMenu):
 
     def exit(self):
         pass
+
+    def menu_item_missing(self):
+        print('Пункт меню отсутствует')
 
 
 if __name__ == '__main__':
