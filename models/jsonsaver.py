@@ -3,13 +3,14 @@ import json
 from models.absclasses import AbstractClassJsonSaver
 from models.headhunter import HeadHunterAPI
 from models.superjob import SuperJobAPI
-from settings import path_to_hh_vacancy, path_to_sj_vacancy, path_to_all_vacancy
+from models.vacancy import Vacancy
+from settings import path_to_hh_vacancy, path_to_sj_vacancy, path_to_all_vacancy, LIST_TO_JSON
 
 
 class JsonSaver(AbstractClassJsonSaver):
 
     path_to_main_json = path_to_all_vacancy
-    list_paths = [path_to_hh_vacancy, path_to_sj_vacancy]
+    list_paths = LIST_TO_JSON
 
     def rotate(self, platform, data):
         if isinstance(platform, HeadHunterAPI):
@@ -88,3 +89,19 @@ class JsonSaver(AbstractClassJsonSaver):
                 res.extend(json.load(file))
 
         json.dump(res, open(self.path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
+
+    def get_data_to_vacancy(self, data):
+        res = []
+        data_vacancy = data
+        for vacancy in data_vacancy:
+            vacancy = Vacancy(name=vacancy['name'],
+                              url=vacancy['url'],
+                              salary=vacancy['salary'],
+                              experience=vacancy['experience'],
+                              requirements=vacancy['requirements'],
+                              city=vacancy['city'])
+            res.append(vacancy)
+        return res
+
+    def sorted_by_salary(self):
+        return sorted(self.get_data_vacancy(), key=lambda x: x['salary'])

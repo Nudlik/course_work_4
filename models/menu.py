@@ -2,25 +2,29 @@ from models.absclasses import AbstractClassMenu
 from models.headhunter import HeadHunterAPI
 from models.jsonsaver import JsonSaver
 from models.superjob import SuperJobAPI
-from models.vacancy import Vacancy
 
 
 class Menu(AbstractClassMenu):
 
+    list_platforms: list = [
+        HeadHunterAPI,
+        SuperJobAPI
+    ]
+
+    json_saver: JsonSaver = JsonSaver()
+
     def __init__(self):
         self.user_find_text: str = 'python'
         self.count_pages: int = 1
-        self.list_platforms: list = [HeadHunterAPI, SuperJobAPI]
-        self.json_saver: JsonSaver = JsonSaver()
 
     def show_menu(self):
-        print('Выберите пункт меню:\n'
+        print('\nВыберите пункт меню:\n'
               '1) Задать параметры для парсинга\n'
               '2) Сменить платформу по которой будем парсить\n'
               '3) Запустить парсинг\n'
               '4) Посмотреть результат\n'
-              '5) Сохранить в файл\n'
-              '6) Отсортировать по ЗП\n'
+              '5) Сохранить json в файл\n'
+              '6) Инфо\n'
               '7) Выход')
 
         user_input = int(input())
@@ -28,7 +32,6 @@ class Menu(AbstractClassMenu):
         match user_input:
             case 1:
                 self.set_parse_params()
-                self.show_menu()
             case 2:
                 self.change_platform()
             case 3:
@@ -40,9 +43,10 @@ class Menu(AbstractClassMenu):
                 self.save_result()
                 self.show_menu()
             case 6:
-                pass
+                print('\nИнфо - пока пусто\n')
+                self.show_menu()
             case 7:
-                quit()
+                self.exit()
             case _:
                 self.menu_item_missing()
                 self.show_menu()
@@ -53,9 +57,10 @@ class Menu(AbstractClassMenu):
         self.user_find_text = user_find_text
         self.count_pages = count_page
 
+        self.start_parse()
 
     def change_platform(self):
-        print(f'Сейчас выбранаы платформы все платформы')
+        print(f'\nСейчас выбраны все платформы')
         [print(f'{num}) {self.list_platforms[num - 1].__name__}') for num in range(1, len(self.list_platforms) + 1)]
         print('7) Выход в главное меню')
 
@@ -73,24 +78,28 @@ class Menu(AbstractClassMenu):
                 self.change_platform()
 
     def start_parse(self):
-        print(f'Парсинг вакансий по слову: {self.user_find_text}\n'
+        print(f'\nПарсинг вакансий по слову: {self.user_find_text}\n'
               f'Страниц будет загружено {self.count_pages}\n'
               f'Вакансий будет найдено {self.count_pages * 10 * len(self.list_platforms)}\n'
               f'1) Начать парсинг\n'
+              f'2) Задать параметры для парсинга\n'
               f'7) Выход в главное меню')
 
         user_input = int(input())
 
         match user_input:
             case 1:
-                print('Парсинг начался, пожалуйста подождите')
+                print('\nПарсинг начался, пожалуйста подождите')
 
                 for platform in self.list_platforms:
                     platform = platform()
                     data = platform.get_vacancies(self.user_find_text, self.count_pages)
                     self.json_saver.rotate(platform, data)
 
+                    print('Все прошло успешно, взаимодействуйте дальше с меню\n')
                     self.show_menu()
+            case 2:
+                self.set_parse_params()
             case 7:
                 self.show_menu()
             case _:
@@ -98,28 +107,35 @@ class Menu(AbstractClassMenu):
                 self.start_parse()
 
     def show_result(self):
-        data_vacancy = self.json_saver.get_data_vacancy()
-        for vacancy in data_vacancy:
-            vacancy = Vacancy(name=vacancy['name'],
-                              url=vacancy['url'],
-                              salary=vacancy['salary'],
-                              experience=vacancy['experience'],
-                              requirements=vacancy['requirements'],
-                              city=vacancy['city'])
-            print(vacancy, end='\n\n')
+        print('\n1) Показать все результаты\n'
+              '2) Показать сортировку по ЗП\n'
+              '7) Выход в главное меню')
+
+        user_input = int(input())
+
+        match user_input:
+            case 1:
+                data = self.json_saver.get_data_to_vacancy(self.json_saver.get_data_vacancy())
+                print(*data, sep='\n\n', end='\n\n')
+            case 2:
+                data = self.json_saver.get_data_to_vacancy(self.json_saver.sorted_by_salary())
+                print(*data, sep='\n\n', end='\n\n')
+            case 7:
+                self.show_menu()
+            case _:
+                self.menu_item_missing()
+                self.show_result()
 
     def save_result(self):
         self.json_saver.save_data_to_json()
 
-    def sort_result_by_salary(self):
-        pass
-
-    def exit(self):
-        pass
+    @staticmethod
+    def exit():
+        quit()
 
     @staticmethod
     def menu_item_missing():
-        print('Пункт меню отсутствует')
+        print('\nПункт меню отсутствует\n')
 
 
 if __name__ == '__main__':

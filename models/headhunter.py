@@ -6,7 +6,7 @@ from models.absclasses import AbstractClassAPI
 class HeadHunterAPI(AbstractClassAPI):
 
     url = r'https://api.hh.ru/vacancies/'
-    USD_RATE = 60  # возможно надо дергать с другой апишки
+    USD_RATE = 60  # возможно надо дергать с другой апишки, это курс USD если что
 
     def get_vacancies(self, find_text, pages=1):
         res = []
