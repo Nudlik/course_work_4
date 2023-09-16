@@ -70,9 +70,10 @@ class Menu(AbstractClassMenu):
 
         match user_input:
             case 1:
-                self.user_find_text = input().strip()
+                self.user_find_text = input(
+                    'Введите название вакансии(слово по которому будет искать вакансии): ').strip()
             case 2:
-                self.salary = self.validate_input_int(input())
+                self.salary = self.validate_input_int(input('Введите минимальную ЗП(цифру): '))
             case 3:
                 self.city = self.validate_input_city(
                     input('Введите название города(чувствителен к регистру пишите город правильно): ').strip()
@@ -80,7 +81,8 @@ class Menu(AbstractClassMenu):
             case 4:
                 self.experience = self.validate_input_int(input('Введите опыт работы в годах(цифру): '))
             case 5:
-                self.count_pages = self.validate_input_int(input('Введите количество страниц: '))
+                self.count_pages = self.validate_input_int(input(
+                    'Введите количество страниц(на 1ой странице будет 10 вакансий): '))
             case 6:
                 self.start_parse()
             case 7:
@@ -175,6 +177,7 @@ class Menu(AbstractClassMenu):
 
     @staticmethod
     def exit():
+        JsonSaver.clear_cash()
         quit()
 
     @staticmethod
@@ -188,7 +191,7 @@ class Menu(AbstractClassMenu):
         try:
             user_input = int(user_input.strip())
             return user_input
-        except Exception:
+        except ValueError:
             user_input = input('Неверный ввод, попробуйте еще раз ввести цифру: ')
             return cls.validate_input_int(user_input)
 

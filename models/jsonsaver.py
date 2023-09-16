@@ -114,10 +114,13 @@ class JsonSaver(AbstractClassJsonSaver):
     def get_data_vacancy(self) -> list:
         """ Метод для получения данных из кэш файлов json """
 
-        res = []
-        for path in self.__list_paths:
-            with open(path, 'r', encoding='utf-8') as file:
-                res.extend(json.load(file))
+        try:
+            res = []
+            for path in self.__list_paths:
+                with open(path, 'r', encoding='utf-8') as file:
+                    res.extend(json.load(file))
+        except json.decoder.JSONDecodeError:
+            return res
 
         return res
 
@@ -156,3 +159,9 @@ class JsonSaver(AbstractClassJsonSaver):
         """ Метод для сортировки вакансий по зарплате """
 
         return sorted(self.get_data_vacancy(), key=lambda x: x['salary'])
+
+    @staticmethod
+    def clear_cash() -> None:
+        """ Метод для очистки кэша json """
+
+        [open(path, 'w').close() for path in LIST_WITH_JSON_PATH]
