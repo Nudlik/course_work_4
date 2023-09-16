@@ -120,6 +120,7 @@ class JsonSaver(AbstractClassJsonSaver):
                 with open(path, 'r', encoding='utf-8') as file:
                     res.extend(json.load(file))
         except json.decoder.JSONDecodeError:
+            print('Вероятно 1 из платформ не отработала корректно(json файл пуст)')
             return res
 
         return res

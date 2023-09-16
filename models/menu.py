@@ -17,7 +17,7 @@ class Menu(AbstractClassMenu):
     def __init__(self):
         self.user_find_text: str = 'python'
         self.salary: int = 0
-        self.city: str = ''
+        self.city: str = self.validate_input_city('красноярск')
         self.experience: int = 0
         self.count_pages: int = 1
 
@@ -223,8 +223,3 @@ class Menu(AbstractClassMenu):
             platform = platform()
             data = platform.get_vacancies(options)
             self.json_saver.rotate(platform, data)
-
-
-if __name__ == '__main__':
-    menu = Menu()
-    menu.show_menu()
