@@ -17,7 +17,7 @@ class Menu(AbstractClassMenu):
     def __init__(self):
         self.user_find_text: str = 'python'
         self.salary: int = 0
-        self.city: str = 'Москва'
+        self.city: str = ''
         self.experience: int = 0
         self.count_pages: int = 1
 
@@ -73,12 +73,14 @@ class Menu(AbstractClassMenu):
                 self.user_find_text = input().strip()
             case 2:
                 self.salary = self.validate_input_int(input())
-            case 3:  # создать словарь с городами и их айди для каждого апи
-                self.city = input().strip()
+            case 3:
+                self.city = self.validate_input_city(
+                    input('Введите название города(чувствителен к регистру пишите город правильно): ').strip()
+                )
             case 4:
-                self.expirience = self.validate_input_int(input())
+                self.experience = self.validate_input_int(input('Введите опыт работы в годах(цифру): '))
             case 5:
-                self.count_pages = self.validate_input_int(input())
+                self.count_pages = self.validate_input_int(input('Введите количество страниц: '))
             case 6:
                 self.start_parse()
             case 7:
@@ -87,7 +89,7 @@ class Menu(AbstractClassMenu):
                 self.menu_item_missing()
                 self.set_parse_params()
 
-        self.show_menu()
+        self.set_parse_params()
 
     def change_platform(self):
         print(f'\nСейчас выбраны все платформы')
@@ -189,6 +191,20 @@ class Menu(AbstractClassMenu):
         except Exception:
             user_input = input('Неверный ввод, попробуйте еще раз ввести цифру: ')
             return cls.validate_input_int(user_input)
+
+    @staticmethod
+    def validate_input_city(user_input: str) -> str:
+        """ Валидация введенного пользователем города """
+
+        if '-' in user_input:
+            correct_city = user_input.split('-')
+            return '-'.join(map(str.capitalize, correct_city))
+
+        elif ' ' in user_input:
+            correct_city = user_input.split()
+            return ' '.join(map(str.capitalize, correct_city))
+
+        return user_input.capitalize()
 
     def start_parse_by_vacancies(self):
 

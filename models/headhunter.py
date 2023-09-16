@@ -33,7 +33,7 @@ class HeadHunterAPI(AbstractClassAPI):
             query_parameters['salary'] = salary
 
         if city:
-            city = self.check_city(city.capitalize())
+            city = self.check_city(city)
             query_parameters['area'] = city
 
         if experience:
@@ -50,6 +50,8 @@ class HeadHunterAPI(AbstractClassAPI):
             query_parameters['page'] = page
             response = requests.get(self.__url, params=query_parameters)
             res.extend(response.json()['items'])
+            if not res:
+                raise Exception('HeadHunterAPI: Не найдено ни одной вакансии')
 
         return res
 
@@ -78,4 +80,4 @@ class HeadHunterAPI(AbstractClassAPI):
             elif area['areas']:
                 result = self.find_city(city_name, area['areas'])
                 if result:
-                    return result
+                    return int(result)

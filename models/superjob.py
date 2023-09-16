@@ -50,5 +50,7 @@ class SuperJobAPI(AbstractClassAPI):
             query_parameters['page'] = page
             response = requests.get(self.__url, params=query_parameters, headers=self.headers)
             res.extend(response.json()['objects'])
+            if not res:
+                raise Exception('SuperJobAPI: Не найдено ни одной вакансии')
 
         return res
