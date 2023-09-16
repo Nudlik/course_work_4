@@ -71,7 +71,7 @@ class JsonSaver(AbstractClassJsonSaver):
             for page in range(len(data)):
                 vacancy = data[page]
 
-                requirements = re.sub(r'[\n\t•]', '', vacancy['candidat'])[:100] + '...'
+                requirements = re.sub(r'[\n\t•]', '', vacancy['candidat'])[:170] + '...'
 
                 lst.append({
                     'name': vacancy['profession'],

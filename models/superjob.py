@@ -10,33 +10,35 @@ class SuperJobAPI(AbstractClassAPI):
     __url: str = 'https://api.superjob.ru/2.0/vacancies/'
     headers: dict = {'X-Api-App-Id': API_KEY_SUPERJOB}
 
-    def get_vacancies(self, find_text: str, pages: int = 1) -> list:
+    def get_vacancies(self, parameters: dict) -> list:
         """
         Метод для получения списка вакансий
-        :param find_text: искомое слово
-        :param pages: количество страниц которые нужно получить
-        :return: список вакансий
-        """
-        query_parameters = {
-            'keyword': find_text,
-            'count': 10,
-        }
-        return self.__get_vacancies_universl(pages, query_parameters)
-
-    def get_vacancies_by_salary(self, find_text: str, pages: int = 1, salary: int = 0) -> list:
-        """
-         Метод для получения списка вакансий по зарплате
-        :param find_text: искомое слово
-        :param pages: количество страниц которые нужно получить
-        :param salary: ожидаемая зарплата
+        :param parameters: словарик с параметрами поиска
         :return: список вакансий
         """
+
+        keyword = parameters.get('text')
+        salary = parameters.get('salary')
+        city = parameters.get('city')
+        experience = parameters.get('expirience')
+        pages = parameters.get('pages')
+        per_page = 10
+
         query_parameters = {
-            'keyword': find_text,
-            'count': 10,
-            'no_agreement': 1,
-            'payment_from': salary
+            'keyword': keyword,
+            'count': per_page,
         }
+
+        if salary:
+            query_parameters['no_agreement'] = 1
+            query_parameters['payment_from'] = salary
+
+        if city:
+            query_parameters['town'] = city
+
+        if experience:
+            query_parameters['experience'] = experience
+
         return self.__get_vacancies_universl(pages, query_parameters)
 
     def __get_vacancies_universl(self, pages: int = 1, params: dict = None) -> list:
