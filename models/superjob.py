@@ -9,7 +9,7 @@ class SuperJobAPI(AbstractClassAPI):
     """ Класс для работы с API superjob.ru для поиска вакансий """
 
     __url: str = 'https://api.superjob.ru/2.0/vacancies/'
-    headers: dict = {'X-Api-App-Id': API_KEY_SUPERJOB}
+    __headers: dict = {'X-Api-App-Id': API_KEY_SUPERJOB}
 
     def get_vacancies(self, option_params: OptionDictParams) -> list:
         """
@@ -54,7 +54,7 @@ class SuperJobAPI(AbstractClassAPI):
         for page in range(pages):
             query_parameters = params
             query_parameters['page'] = page
-            response = requests.get(self.__url, params=query_parameters, headers=self.headers)
+            response = requests.get(self.__url, params=query_parameters, headers=self.__headers)
 
             if response.status_code != 200:
                 raise Exception('SuperJobAPI: Ошибка запроса вакансий, api не работает')
@@ -80,7 +80,7 @@ class SuperJobAPI(AbstractClassAPI):
         """ Метод для проверки введенного города """
 
         url = 'https://api.superjob.ru/2.0/towns/'
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url, headers=self.__headers)
 
         if response.status_code != 200:
             raise Exception('SuperJobAPI: Ошибка запроса городов, api не работает')
