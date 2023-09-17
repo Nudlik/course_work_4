@@ -141,7 +141,8 @@ class JsonSaver(AbstractClassJsonSaver):
         if res:
             json.dump(res, open(self.__path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
 
-    def get_data_to_vacancy(self, data: list) -> list:
+    @staticmethod
+    def get_data_to_vacancy(data: list) -> list:
         """
         Метод для преобразования данных из json в объекты Vacancy
         :param data: список с вакансиями

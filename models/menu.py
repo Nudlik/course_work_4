@@ -1,6 +1,7 @@
 from models.absclasses import AbstractClassMenu
 from models.headhunter import HeadHunterAPI
 from models.jsonsaver import JsonSaver
+from models.optiondictparams import OptionDictParams
 from models.superjob import SuperJobAPI
 
 
@@ -17,7 +18,7 @@ class Menu(AbstractClassMenu):
     def __init__(self):
         self.user_find_text: str = 'python'
         self.salary: int = 50_000
-        self.city: str = self.validate_input_city('красноярск')
+        self.city: str = self.validate_input_city('москва')
         self.experience: int = 0
         self.count_pages: int = 1
 
@@ -211,15 +212,13 @@ class Menu(AbstractClassMenu):
 
     def start_parse_by_vacancies(self):
 
-        options = {
-            'text': self.user_find_text,
-            'salary': self.salary,
-            'city': self.city,
-            'experience': self.experience,
-            'pages': self.count_pages
-        }
+        option_params: OptionDictParams = OptionDictParams(text=self.user_find_text,
+                                                           salary=self.salary,
+                                                           city=self.city,
+                                                           experience=self.experience,
+                                                           pages=self.count_pages)
 
         for platform in self.list_platforms:
             platform = platform()
-            data = platform.get_vacancies(options)
+            data = platform.get_vacancies(option_params)
             self.json_saver.rotate(platform, data)

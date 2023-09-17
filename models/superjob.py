@@ -1,6 +1,7 @@
 import requests
 
 from models.absclasses import AbstractClassAPI
+from models.optiondictparams import OptionDictParams
 from settings import API_KEY_SUPERJOB
 
 
@@ -10,18 +11,19 @@ class SuperJobAPI(AbstractClassAPI):
     __url: str = 'https://api.superjob.ru/2.0/vacancies/'
     headers: dict = {'X-Api-App-Id': API_KEY_SUPERJOB}
 
-    def get_vacancies(self, parameters: dict) -> list:
+    def get_vacancies(self, option_params: OptionDictParams) -> list:
         """
         Метод для получения списка вакансий
+        :param option_params: класс OptionDictParams для хранения параметров
         :param parameters: словарик с параметрами поиска
         :return: список вакансий
         """
 
-        keyword = parameters.get('text')
-        salary = parameters.get('salary')
-        city = parameters.get('city')
-        experience = parameters.get('experience')
-        pages = parameters.get('pages')
+        keyword = option_params.text
+        salary = option_params.salary
+        city = option_params.city
+        experience = option_params.experience
+        pages = option_params.pages
         per_page = 10
 
         query_parameters = {

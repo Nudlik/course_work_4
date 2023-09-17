@@ -1,6 +1,7 @@
 import requests
 
 from models.absclasses import AbstractClassAPI
+from models.optiondictparams import OptionDictParams
 
 
 class HeadHunterAPI(AbstractClassAPI):
@@ -9,18 +10,19 @@ class HeadHunterAPI(AbstractClassAPI):
     __url: str = r'https://api.hh.ru/vacancies/'
     USD_RATE: float = 60  # возможно надо дергать с другой апишки, это курс USD если что
 
-    def get_vacancies(self, parameters: dict) -> list:
+    def get_vacancies(self, option_params: OptionDictParams) -> list:
         """
         Метод для получения списка вакансий
+        :param option_params: класс OptionDictParams для хранения параметров
         :param parameters: словарик с параметрами поиска
         :return: список вакансий
         """
 
-        text = parameters.get('text')
-        salary = parameters.get('salary')
-        city = parameters.get('city')
-        experience = parameters.get('expirience')
-        pages = parameters.get('pages')
+        text = option_params.text
+        salary = option_params.salary
+        city = option_params.city
+        experience = option_params.experience
+        pages = option_params.pages
         per_page = 10
 
         query_parameters = {
@@ -66,7 +68,7 @@ class HeadHunterAPI(AbstractClassAPI):
         url = 'https://api.hh.ru/areas'
         response = requests.get(url)
 
-        if response.status_code != 201:
+        if response.status_code != 200:
             raise Exception('HeadHunterAPI: Ошибка запроса городов, api не работает')
 
         response_json = response.json()
