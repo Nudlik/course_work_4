@@ -20,7 +20,7 @@ class SuperJobAPI(AbstractClassAPI):
         keyword = parameters.get('text')
         salary = parameters.get('salary')
         city = parameters.get('city')
-        experience = parameters.get('expirience')
+        experience = parameters.get('experience')
         pages = parameters.get('pages')
         per_page = 10
 
@@ -34,7 +34,11 @@ class SuperJobAPI(AbstractClassAPI):
             query_parameters['payment_from'] = salary
 
         if city:
-            query_parameters['town'] = city
+            correct_city = self.check_city(city)
+            if correct_city:
+                query_parameters['t'] = [1, correct_city]
+            else:
+                query_parameters['town'] = city
 
         if experience:
             query_parameters['experience'] = experience
@@ -49,8 +53,37 @@ class SuperJobAPI(AbstractClassAPI):
             query_parameters = params
             query_parameters['page'] = page
             response = requests.get(self.__url, params=query_parameters, headers=self.headers)
-            res.extend(response.json()['objects'])
-            if not res:
+
+            if response.status_code != 200:
+                raise Exception('SuperJobAPI: Ошибка запроса вакансий, api не работает')
+
+            response_json = response.json()
+            response_list = response_json['objects']
+
+            if not response_list:  # Сбрасываем фильтр по городам, я без понятия почему он не ищет по ид
+                print('Фильтр городов не был применен к SuperJobAPI'); print('Не', end=' ')
+                query_parameters['t'] = []
+                query_parameters['town'] = ''
+                response = self.__get_vacancies_universl(pages, query_parameters)
+                res.extend(response)
+            else:
+                res.extend(response_list)
+
+            if res:
+                return res
+            else:
                 raise Exception('SuperJobAPI: Не найдено ни одной вакансии')
 
-        return res
+    def check_city(self, city_title: str) -> int | None:
+        """ Метод для проверки введенного города """
+
+        url = 'https://api.superjob.ru/2.0/towns/'
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code != 200:
+            raise Exception('SuperJobAPI: Ошибка запроса городов, api не работает')
+
+        response_json = response.json()['objects']
+        for city in response_json:
+            if city['title'] == city_title:
+                return city['id']

@@ -16,7 +16,7 @@ class Menu(AbstractClassMenu):
 
     def __init__(self):
         self.user_find_text: str = 'python'
-        self.salary: int = 0
+        self.salary: int = 50_000
         self.city: str = self.validate_input_city('красноярск')
         self.experience: int = 0
         self.count_pages: int = 1

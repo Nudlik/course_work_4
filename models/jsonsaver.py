@@ -114,14 +114,14 @@ class JsonSaver(AbstractClassJsonSaver):
     def get_data_vacancy(self) -> list:
         """ Метод для получения данных из кэш файлов json """
 
-        try:
-            res = []
-            for path in self.__list_paths:
-                with open(path, 'r', encoding='utf-8') as file:
+        res = []
+        for path in self.__list_paths:
+            with open(path, 'r', encoding='utf-8') as file:
+                try:
                     res.extend(json.load(file))
-        except json.decoder.JSONDecodeError:
-            print('Вероятно 1 из платформ не отработала корректно(json файл пуст)')
-            return res
+                except json.decoder.JSONDecodeError:
+                    print(f'Вероятно 1 из платформ не отработала корректно(json файл пуст {path})')
+                    pass
 
         return res
 
@@ -132,9 +132,14 @@ class JsonSaver(AbstractClassJsonSaver):
         res = []
         for path in self.__list_paths:
             with open(path, 'r', encoding='utf-8') as file:
-                res.extend(json.load(file))
+                try:
+                    res.extend(json.load(file))
+                except json.decoder.JSONDecodeError:
+                    print(f'Вероятно 1 из платформ не отработала корректно(json файл пуст {path})')
+                    pass
 
-        json.dump(res, open(self.__path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
+        if res:
+            json.dump(res, open(self.__path_to_main_json, 'w', encoding='utf-8'), indent=4, ensure_ascii=False)
 
     def get_data_to_vacancy(self, data: list) -> list:
         """

@@ -49,7 +49,12 @@ class HeadHunterAPI(AbstractClassAPI):
             query_parameters = params
             query_parameters['page'] = page
             response = requests.get(self.__url, params=query_parameters)
+
+            if response.status_code != 200:
+                raise Exception('HeadHunterAPI: Ошибка запроса вакансий, api не работает')
+
             res.extend(response.json()['items'])
+
             if not res:
                 raise Exception('HeadHunterAPI: Не найдено ни одной вакансии')
 
@@ -59,8 +64,11 @@ class HeadHunterAPI(AbstractClassAPI):
         """ Метод для проверки введенного города """
 
         url = 'https://api.hh.ru/areas'
-
         response = requests.get(url)
+
+        if response.status_code != 201:
+            raise Exception('HeadHunterAPI: Ошибка запроса городов, api не работает')
+
         response_json = response.json()
 
         return self.find_city(city, response_json)
