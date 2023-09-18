@@ -38,7 +38,7 @@ class SuperJobAPI(AbstractClassAPI):
         if city:
             correct_city = self.check_city(city)
             if correct_city:
-                query_parameters['t'] = [1, correct_city]
+                query_parameters['t'] = [correct_city]
             else:
                 query_parameters['town'] = city
 
@@ -62,12 +62,14 @@ class SuperJobAPI(AbstractClassAPI):
             response_json = response.json()
             response_list = response_json['objects']
 
-            if not response_list:  # Сбрасываем фильтр по городам, я без понятия почему он не ищет по ид
+            if not response_list:
                 print('Фильтр городов не был применен к SuperJobAPI'); print('Не', end=' ')
                 query_parameters['t'] = []
                 query_parameters['town'] = ''
                 response = self.__get_vacancies_universl(pages, query_parameters)
                 res.extend(response)
+            elif vacancy := [i for i in response_list if i['address']]:
+                res.extend(vacancy)
             else:
                 res.extend(response_list)
 
