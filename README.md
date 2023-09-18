@@ -9,7 +9,7 @@
 - `git clone https://github.com/Nudlik/course_work_4.git`
 - Cоздать виртуальное окружение
 - `python -m venv venv`
-- Установить зависимости комадой:
+- Установить зависимости
 - `pip install -r requirements.txt`
 - Записать в переменные окружение ключ для работы с API SuperJob
   Название переменной - API_KEY_SUPERJOB (Если он есть, то прописать его в settings.py)
@@ -30,6 +30,36 @@
 - Документация к API: [hh.ru](https://api.hh.ru/openapi/redoc), [superjob.ru](https://api.superjob.ru/)
 - Постарался сделать расширяемой что бы подключать другие апи
 - Если найдете баги(а они вероятно есть) пишите поправлю
+- Структура кода:
+
+```
++course_work_4
+|   .gitignore
+|   main.py (основной файл запуска программы)
+|   README.md
+|   requirements.txt (файл с зависимостями)
+|   settings.py (файл с настройками, здесь api ключ)
++---data (папка для кэшей)
+|       hh_vacancy.json
+|       sj_vacancy.json
++---models (папка с классами)
+|   |   absclasses.py
+|   |   cachebuffer.py
+|   |   menu.py
+|   |   optiondictparams.py
+|   |   vacancy.py
+|   +---api (папка с модулями api)
+|   |   |   headhunter.py
+|   |   |   superjob.py
+|   +---manager (папка с модулями для работы с сохранением в файлы)
+|   |   |   csvsaver.py
+|   |   |   jsonsaver.py
+|   |   |   txtsaver.py
++---saves (папка с результатом сохранений вакансий)
+        all_vacancy.csv
+        all_vacancy.json
+        all_vacancy.txt
+```
 
 ***
 
