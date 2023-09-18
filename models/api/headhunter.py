@@ -1,3 +1,5 @@
+import re
+
 import requests
 
 from models.absclasses import AbstractClassAPI
@@ -8,13 +10,12 @@ class HeadHunterAPI(AbstractClassAPI):
     """ Класс для работы с API hh.ru для поиска вакансий """
 
     __url: str = r'https://api.hh.ru/vacancies/'
-    USD_RATE: float = 60  # возможно надо дергать с другой апишки, это курс USD если что
+    __USD_RATE: float = 60  # возможно надо дергать с другой апишки, это курс USD если что
 
     def get_vacancies(self, option_params: OptionDictParams) -> list:
         """
         Метод для получения списка вакансий
         :param option_params: класс OptionDictParams для хранения параметров
-        :param parameters: словарик с параметрами поиска
         :return: список вакансий
         """
 
@@ -75,19 +76,54 @@ class HeadHunterAPI(AbstractClassAPI):
 
         return self.find_city(city, response_json)
 
-    def find_city(self, city_name: str, areas: dict) -> int | None:
+    def find_city(self, city_title: str, areas: dict) -> int | None:
         """
         Рекурсивный метод для поиска города по названию
-        :param city_name: название города
+        :param city_title: название города
         :param areas: словарик с городами и определенной структурой смотреть
         (https://github.com/hhru/api/blob/master/docs/areas.md#areas)
         :return: id города или None
         """
 
         for area in areas:
-            if area['name'] == city_name:
+            if area['name'] == city_title:
                 return area['id']
             elif area['areas']:
-                result = self.find_city(city_name, area['areas'])
+                result = self.find_city(city_title, area['areas'])
                 if result:
                     return int(result)
+
+    def format_data(self, data: list) -> list:
+        """ Метод для форматирования данных в формате list[dict, ...] """
+
+        lst = []
+
+        for page in range(len(data)):
+            vacancy = data[page]
+
+            salary = vacancy['salary']
+            if isinstance(salary, dict):
+                currency = salary['currency']
+                from_ = salary['from']
+                if currency == 'USD':
+                    salary = from_ * HeadHunterAPI.__USD_RATE
+                elif from_ is None:
+                    salary = 0
+                else:
+                    salary = from_
+            else:
+                salary = 0
+
+            requirements = vacancy['snippet']['responsibility']
+            requirements = re.sub(r'<.*?>', '', requirements) if requirements else 'Не указано'
+
+            lst.append({
+                'name': vacancy['name'],
+                'url': vacancy['alternate_url'],
+                'salary': salary,
+                'experience': vacancy['experience']['name'],
+                'requirements': requirements,
+                'city': vacancy['area']['name']
+            })
+
+        return lst

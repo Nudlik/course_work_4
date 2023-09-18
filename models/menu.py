@@ -1,19 +1,27 @@
 from models.absclasses import AbstractClassMenu
-from models.headhunter import HeadHunterAPI
-from models.jsonsaver import JsonSaver
+from models.api.headhunter import HeadHunterAPI
+from models.api.superjob import SuperJobAPI
+from models.cachebuffer import CacheBuffer
+from models.manager.csvsaver import CsvSaver
+from models.manager.jsonsaver import JsonSaver
+from models.manager.txtsaver import TxtSaver
 from models.optiondictparams import OptionDictParams
-from models.superjob import SuperJobAPI
+from settings import path_to_hh_vacancy, path_to_sj_vacancy
 
 
 class Menu(AbstractClassMenu):
     """ Меню программы """
 
-    list_platforms: list = [
-        HeadHunterAPI,
-        SuperJobAPI
+    platforms_and_paths: list = [
+        (HeadHunterAPI, path_to_hh_vacancy),
+        (SuperJobAPI, path_to_sj_vacancy)
     ]
 
+    cache_buffer: CacheBuffer = CacheBuffer()
+
     json_saver: JsonSaver = JsonSaver()
+    csv_saver: CsvSaver = CsvSaver()
+    txt_saver: TxtSaver = TxtSaver()
 
     def __init__(self):
         self.user_find_text: str = 'python'
@@ -28,7 +36,7 @@ class Menu(AbstractClassMenu):
               '2) Сменить платформу по которой будем парсить\n'
               '3) Запустить парсинг\n'
               '4) Посмотреть результат\n'
-              '5) Сохранить json в файл\n'
+              '5) Сохранить результат поиска в файл\n'
               '6) Инфо\n'
               '7) Выход')
 
@@ -47,7 +55,6 @@ class Menu(AbstractClassMenu):
                 self.show_menu()
             case 5:
                 self.save_result()
-                self.show_menu()
             case 6:
                 print('\nИнфо - пока пусто')
                 self.show_menu()
@@ -96,7 +103,8 @@ class Menu(AbstractClassMenu):
 
     def change_platform(self):
         print(f'\nСейчас выбраны все платформы')
-        [print(f'{num}) {self.list_platforms[num - 1].__name__}') for num in range(1, len(self.list_platforms) + 1)]
+        [print(f'{num}) {self.platforms_and_paths[num - 1][0].__name__}')
+         for num in range(1, len(self.platforms_and_paths) + 1)]
         print('7) Выход в главное меню')
 
         user_input = self.validate_input_int(
@@ -104,9 +112,9 @@ class Menu(AbstractClassMenu):
 
         match user_input:
             case 1:
-                self.list_platforms = [HeadHunterAPI]
+                self.platforms_and_paths = [HeadHunterAPI]
             case 2:
-                self.list_platforms = [SuperJobAPI]
+                self.platforms_and_paths = [SuperJobAPI]
             case 7:
                 self.show_menu()
             case _:
@@ -114,7 +122,7 @@ class Menu(AbstractClassMenu):
                 self.change_platform()
 
     def start_parse(self):
-        str_list_platforms = ', '.join(str(i).split('.')[-1][:-2] for i in self.list_platforms)
+        str_list_platforms = ', '.join(str(i[0]).split('.')[-1][:-2] for i in self.platforms_and_paths)
 
         print(f'\nПарсинг будет выполняться через: {str_list_platforms}\n'
               f'Парсинг вакансий по слову:       {self.user_find_text}\n'
@@ -122,7 +130,7 @@ class Menu(AbstractClassMenu):
               f'Город ищется:                    {self.city}\n'
               f'Опыт работы ищется от:           {self.experience} года(лет)\n'
               f'Страниц будет загружено:         {self.count_pages} шт\n'
-              f'Вакансий будет найдено:          {self.count_pages * 10 * len(self.list_platforms)} шт\n'
+              f'Вакансий будет найдено:          {self.count_pages * 10 * len(self.platforms_and_paths)} шт\n'
               f'1) Начать парсинг\n'
               f'6) Задать параметры для парсинга\n'
               f'7) Выход в главное меню')
@@ -160,11 +168,11 @@ class Menu(AbstractClassMenu):
 
         match user_input:
             case 1:
-                vacancy = self.json_saver.get_data_vacancy()
-                data = self.json_saver.get_data_to_vacancy(vacancy)
+                vacancy = self.cache_buffer.get_data_vacancy()
+                data = self.cache_buffer.get_data_to_vacancy(vacancy)
             case 2:
-                vacancy = self.json_saver.sorted_by_salary()
-                data = self.json_saver.get_data_to_vacancy(vacancy)
+                vacancy = self.cache_buffer.sorted_by_salary()
+                data = self.cache_buffer.get_data_to_vacancy(vacancy)
             case 7:
                 self.show_menu()
             case _:
@@ -174,11 +182,38 @@ class Menu(AbstractClassMenu):
         print(*data, sep='\n\n', end='\n\n')
 
     def save_result(self):
-        self.json_saver.save_data_to_json()
+        print(f'Выберети формат сохранения:\n'
+              f'1) JSON\n'
+              f'2) CSV\n'
+              f'3) TXT\n'
+              f'5) Сохранить результат поиска во все файлы\n'
+              f'6) Очистить все файлы с сохраненными данными\n'
+              f'7) Выход в главное меню')
+
+        user_input = self.validate_input_int(input())
+
+        match user_input:
+            case 1:
+                self.json_saver.save_data()
+            case 2:
+                self.csv_saver.save_data()
+            case 3:
+                self.txt_saver.save_data()
+            case 5:
+                [i.save_data() for i in [self.json_saver, self.csv_saver, self.txt_saver]]
+            case 6:
+                [i.clear_data() for i in [self.json_saver, self.csv_saver, self.txt_saver]]
+            case 7:
+                self.show_menu()
+            case _:
+                self.menu_item_missing()
+                self.save_result()
+
+        self.show_menu()
 
     @staticmethod
     def exit():
-        JsonSaver.clear_cash()
+        CacheBuffer.clear_cash()
         quit()
 
     @staticmethod
@@ -218,7 +253,8 @@ class Menu(AbstractClassMenu):
                                                            experience=self.experience,
                                                            pages=self.count_pages)
 
-        for platform in self.list_platforms:
+        for platform, path in self.platforms_and_paths:
             platform = platform()
             data = platform.get_vacancies(option_params)
-            self.json_saver.rotate(platform, data)
+            format_data = platform.format_data(data)
+            self.cache_buffer.save_cache(format_data, path)

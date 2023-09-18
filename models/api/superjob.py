@@ -1,3 +1,5 @@
+import re
+
 import requests
 
 from models.absclasses import AbstractClassAPI
@@ -15,7 +17,6 @@ class SuperJobAPI(AbstractClassAPI):
         """
         Метод для получения списка вакансий
         :param option_params: класс OptionDictParams для хранения параметров
-        :param parameters: словарик с параметрами поиска
         :return: список вакансий
         """
 
@@ -91,3 +92,24 @@ class SuperJobAPI(AbstractClassAPI):
         for city in response_json:
             if city['title'] == city_title:
                 return city['id']
+
+    def format_data(self, data: list) -> list:
+        """ Метод для форматирования данных в формате list[dict, ...] """
+
+        lst = []
+
+        for page in range(len(data)):
+            vacancy = data[page]
+
+            requirements = re.sub(r'[\n\t•]', '', vacancy['candidat'])[:170] + '...'
+
+            lst.append({
+                'name': vacancy['profession'],
+                'url': vacancy['link'],
+                'salary': vacancy['payment_from'],
+                'experience': vacancy['experience']['title'],
+                'requirements': requirements,
+                'city': vacancy['town']['title']
+            })
+
+        return lst
